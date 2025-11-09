@@ -8,4 +8,4 @@ It demonstrates:
 - Automated CI/CD workflow using GitHub Actions
 
 **Author:** Unnayan Srivastava  
-**Email:** 23f3003811@ds.study.iitm.ac
+**Email:** 23f3003811@ds.study.iitm.ac.in
