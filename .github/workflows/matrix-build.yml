@@ -1,22 +1,30 @@
-name: Multi-Platform Matrix Build with Artifacts
+name: Multi-Platform Matrix Build
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        node-version: [14, 16, 18]   # ✅ 3 variants for the matrix
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node-version: [18, 20]
+        include:
+          - os: ubuntu-latest
+            node-version: 16
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: matrix-f736404
-        run: echo "Building for Node.js version ${{ matrix.node-version }}"
+        run: echo "Building for ${{ matrix.os }} with Node.js ${{ matrix.node-version }}"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -25,11 +33,21 @@ jobs:
 
       - name: Generate build artifact
         run: |
-          echo "Build output for Node.js version ${{ matrix.node-version }}" > output.txt
-          echo "Generated from repo TDS_ROE_6 on $(date)" >> output.txt
+          echo "Build Information" > build-output.txt
+          echo "==================" >> build-output.txt
+          echo "OS: ${{ matrix.os }}" >> build-output.txt
+          echo "Node Version: ${{ matrix.node-version }}" >> build-output.txt
+          echo "Build Time: $(date)" >> build-output.txt
+          echo "Runner: ${{ runner.name }}" >> build-output.txt
+          echo "" >> build-output.txt
+          echo "Node.js Info:" >> build-output.txt
+          node --version >> build-output.txt
+          npm --version >> build-output.txt
+        shell: bash
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: build-f736404-node${{ matrix.node-version }}
-          path: output.txt
+          name: build-f736404-${{ matrix.os }}-node${{ matrix.node-version }}
+          path: build-output.txt
+          retention-days: 7
